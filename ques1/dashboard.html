@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+</head>
+<body>
+  <h2>Welcome to the Dashboard</h2>
+  <div id="productContainer"></div>
+
+  <script>
+    // Redirect if not logged in
+    if (!localStorage.getItem("userLoggedIn")) {
+      window.location.href = "login.html";
+    }
+
+   
+    fetch("https://fakestoreapi.com/products")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("productContainer");
+        data.forEach(product => {
+          const card = document.createElement("div");
+          card.style.border = "1px solid #ccc";
+          card.style.margin = "10px";
+          card.style.padding = "10px";
+
+          card.innerHTML = `
+            <h3>${product.title}</h3>
+            <img src="${product.image}" width="100" />
+            <p>Price: $${product.price}</p>
+          `;
+          container.appendChild(card);
+        });
+      });
+  </script>
+</body>
+</html>
