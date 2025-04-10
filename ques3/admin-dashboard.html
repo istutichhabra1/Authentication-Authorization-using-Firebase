@@ -1,0 +1,54 @@
+<h1>Admin Dashboard</h1>
+<form id="addProductForm">
+  <input type="text" id="title" placeholder="Title" required />
+  <input type="number" id="price" placeholder="Price" required />
+  <input type="text" id="image" placeholder="Image URL" required />
+  <button type="submit">Add Product</button>
+</form>
+<div id="productList"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  if (sessionStorage.getItem("role") !== "admin") {
+    window.location.href = "user-dashboard.html";
+  }
+
+  const form = document.getElementById("addProductForm");
+  const productList = document.getElementById("productList");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const title = form.title.value;
+    const price = form.price.value;
+    const image = form.image.value;
+
+    const newRef = db.ref("products").push();
+    newRef.set({ title, price, image });
+    form.reset();
+  });
+
+  function fetchProducts() {
+    db.ref("products").on("value", (snapshot) => {
+      productList.innerHTML = "";
+      snapshot.forEach((child) => {
+        const product = child.val();
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <h3>${product.title}</h3>
+          <p>$${product.price}</p>
+          <img src="${product.image}" width="100"/>
+          <button onclick="deleteProduct('${child.key}')">Delete</button>
+        `;
+        productList.appendChild(div);
+      });
+    });
+  }
+
+  function deleteProduct(id) {
+    db.ref("products/" + id).remove();
+  }
+
+  fetchProducts();
+</script>
